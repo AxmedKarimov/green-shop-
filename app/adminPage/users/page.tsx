@@ -1,13 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { AiOutlineProduct } from "react-icons/ai";
-import { BiCategoryAlt } from "react-icons/bi";
-import { FaUsers } from "react-icons/fa";
-import {
-  MdOutlineSpaceDashboard,
-  MdProductionQuantityLimits,
-} from "react-icons/md";
+
 import Sidebar from "../saidbar";
 import { createClient } from "@/supabase/client";
 

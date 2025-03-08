@@ -1,16 +1,10 @@
 "use client";
-import Link from "next/link";
 import React, { useEffect, useState, ChangeEvent, FormEvent } from "react";
-import { AiOutlineProduct } from "react-icons/ai";
-import { BiCategoryAlt } from "react-icons/bi";
-import { FaUsers } from "react-icons/fa";
-import {
-  MdAddPhotoAlternate,
-  MdOutlineSpaceDashboard,
-  MdProductionQuantityLimits,
-} from "react-icons/md";
+
+import { MdAddPhotoAlternate } from "react-icons/md";
 import Sidebar from "../saidbar";
 import { createClient } from "@/supabase/client";
+import Image from "next/image";
 
 interface Category {
   id: number;
@@ -134,7 +128,7 @@ export default function Products() {
       });
 
       if (error) {
-        console.error("Mahsulot qo'shishda xatolik:", error);
+        console.error("Mahsulot qoshishda xatolik:", error);
       } else {
         setNewProductName("");
         setNewProductDescription("");
@@ -150,11 +144,11 @@ export default function Products() {
   };
 
   const handleDeleteProduct = async (id: number) => {
-    if (!confirm("Ushbu mahsulotni o'chirmoqchimisiz?")) return;
+    if (!confirm("Ushbu mahsulotni ochirmoqchimisiz?")) return;
     try {
       const { error } = await supabase.from("products").delete().eq("id", id);
       if (error) {
-        console.error("Mahsulotni o'chirishda xatolik:", error);
+        console.error("Mahsulotni ochirishda xatolik:", error);
       } else {
         fetchProducts();
       }
@@ -205,28 +199,32 @@ export default function Products() {
       console.error("handleUpdateProduct error:", err);
     }
   };
-
   const handleEditFieldChange = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     if (editingProduct) {
-      const { name, value, type, checked } = e.target;
-      let newValue: any = value;
+      const { name, type } = e.target;
+      let newValue: string | number | boolean;
+
       if (type === "checkbox") {
-        newValue = checked;
+        newValue = (e.target as HTMLInputElement).checked; // Type assertion for checkbox
       } else if (type === "number") {
-        newValue = Number(value);
+        newValue = Number((e.target as HTMLInputElement).value); // Type assertion for number
+      } else {
+        newValue = (e.target as HTMLInputElement).value; // Default to string for text/textarea/select
       }
-      setEditingProduct({
-        ...editingProduct,
+
+      setEditingProduct((prev) => ({
+        ...prev!,
         [name]: newValue,
-      });
+      }));
     }
   };
 
   const handleNewImagesChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setNewProductImages((prev) => [...prev, ...Array.from(e.target.files)]);
+    const target = e.target as HTMLInputElement; // Type assertion
+    if (target.files) {
+      setNewProductImages((prev) => [...prev, ...Array.from(target.files!)]);
     }
   };
 
@@ -235,8 +233,9 @@ export default function Products() {
   };
 
   const handleEditImagesChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setEditingNewImages((prev) => [...prev, ...Array.from(e.target.files)]);
+    const target = e.target as HTMLInputElement; // Type assertion
+    if (target.files) {
+      setEditingNewImages((prev) => [...prev, ...Array.from(target.files!)]);
     }
   };
 
@@ -245,22 +244,22 @@ export default function Products() {
   };
 
   const handleRemoveExistingImage = (index: number) => {
-    if (!editingProduct || !editingProduct.images) return;
-    const updated = [...editingProduct.images];
-    updated.splice(index, 1);
-    setEditingProduct({
-      ...editingProduct,
-      images: updated,
-    });
+    if (editingProduct && editingProduct.images) {
+      const updated = [...editingProduct.images];
+      updated.splice(index, 1);
+      setEditingProduct((prev) => ({
+        ...prev!,
+        images: updated,
+      }));
+    }
   };
-
   return (
     <div className="w-full flex items-center h-screen">
       {/* SIDEBAR */}
       <Sidebar />
 
       {/* BODY */}
-      <div className="h-full w-full border bg-slate-100 p-10 overflow-auto overflow-hidden">
+      <div className="h-full w-full border bg-slate-100 p-10">
         <div className="h-full w-full bg-white rounded-lg p-5 shadow-sm">
           <div className="w-full flex justify-between items-center mb-5">
             <h1 className="text-4xl font-semibold ms-5 mt-5">Products</h1>
@@ -279,7 +278,7 @@ export default function Products() {
             onChange={handleSearchChange}
           />
 
-          {/* JADVALL */}
+          {/* TABLE */}
           <div className="overflow-x-auto">
             <table className="w-full table-auto border border-gray-300 shadow-sm">
               <thead className="bg-green-200">
@@ -302,11 +301,13 @@ export default function Products() {
                       {product.images && product.images.length > 0 ? (
                         <div className="flex gap-2 overflow-x-auto max-w-[300px] mx-auto">
                           {product.images.map((imgStr, idx) => (
-                            <img
+                            <Image
                               key={idx}
                               src={imgStr}
                               alt={product.name}
-                              className="w-16 h-16 object-cover border border-gray-200 rounded"
+                              width={64}
+                              height={64}
+                              className="object-cover border border-gray-200 rounded"
                             />
                           ))}
                         </div>
@@ -408,7 +409,6 @@ export default function Products() {
                 <label htmlFor="newActive">Active</label>
               </div>
 
-              {/* Bir nechta rasm tanlash */}
               <div className="mb-4">
                 <label className="block mb-1">Images</label>
                 <label htmlFor="addImg">
@@ -425,17 +425,18 @@ export default function Products() {
                   />
                 </label>
               </div>
-              {/* Tanlangan rasmlarni preview + remove tugmasi */}
               {newProductImages.length > 0 && (
                 <div className="mb-4 flex flex-wrap gap-3">
                   {newProductImages.map((file, idx) => {
                     const objectUrl = URL.createObjectURL(file);
                     return (
                       <div key={idx} className="relative">
-                        <img
+                        <Image
                           src={objectUrl}
                           alt="preview"
-                          className="w-16 h-16 object-cover border border-gray-300 rounded"
+                          width={64}
+                          height={64}
+                          className="object-cover border border-gray-300 rounded"
                         />
                         <button
                           type="button"
@@ -539,17 +540,19 @@ export default function Products() {
                 <label htmlFor="editActive">Active</label>
               </div>
 
-              {/* Eski rasmlar ro'yxati */}
+              {/* Existing Images */}
               {editingProduct.images && editingProduct.images.length > 0 && (
                 <div className="mb-4">
                   <label className="block mb-1">Existing Images</label>
                   <div className="flex flex-wrap gap-3">
                     {editingProduct.images.map((imgStr, idx) => (
                       <div key={idx} className="relative">
-                        <img
+                        <Image
                           src={imgStr}
                           alt="Existing"
-                          className="w-16 h-16 object-cover border border-gray-300 rounded"
+                          width={64}
+                          height={64}
+                          className="object-cover border border-gray-300 rounded"
                         />
                         <button
                           type="button"
@@ -564,7 +567,7 @@ export default function Products() {
                 </div>
               )}
 
-              {/* Yangi rasm(lar) tanlash */}
+              {/* Add New Images */}
               <div className="mb-4">
                 <label className="block mb-1">Add New Images</label>
                 <label htmlFor="newImages">
@@ -582,17 +585,19 @@ export default function Products() {
                 </label>
               </div>
 
-              {/* Tahrir paytida yangi tanlangan rasmlarni preview + remove */}
+              {/* New Images Preview */}
               {editingNewImages.length > 0 && (
                 <div className="mb-4 flex flex-wrap gap-3">
                   {editingNewImages.map((file, idx) => {
                     const objectUrl = URL.createObjectURL(file);
                     return (
                       <div key={idx} className="relative">
-                        <img
+                        <Image
                           src={objectUrl}
                           alt="preview"
-                          className="w-16 h-16 object-cover border border-gray-300 rounded"
+                          width={64}
+                          height={64}
+                          className="object-cover border border-gray-300 rounded"
                         />
                         <button
                           type="button"

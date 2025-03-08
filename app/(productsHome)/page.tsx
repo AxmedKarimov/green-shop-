@@ -2,6 +2,7 @@
 import { createClient } from "@/supabase/client";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 
 const supabase = createClient();
 
@@ -84,7 +85,7 @@ export default function ProductsPage() {
         <h1 className="text-2xl font-bold text-gray-800">Categories</h1>
         <ul className="mt-4 space-y-3">
           <li
-            className={`cursor-pointer text-lg font-medium  flex justify-between${
+            className={`cursor-pointer text-lg font-medium flex justify-between${
               selectedCategory === null
                 ? "text-green-600 flex justify-between"
                 : "text-gray-700 flex justify-between"
@@ -139,10 +140,12 @@ export default function ProductsPage() {
                   onClick={() => router.push(`/product/${product.id}`)}
                 >
                   {product.images.length > 0 && (
-                    <img
+                    <Image
                       src={product.images[0]}
                       alt={product.name}
                       className="w-full h-40 object-cover rounded-md mb-3"
+                      width={400}
+                      height={250}
                     />
                   )}
                   <h3 className="text-lg font-semibold">{product.name}</h3>

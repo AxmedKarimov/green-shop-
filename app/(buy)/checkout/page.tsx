@@ -40,7 +40,7 @@ export default function CheckoutForm() {
 
   const handleSubmit = async () => {
     if (!isFormValid) {
-      toast.error("Iltimos, barcha maydonlarni to'ldiring!");
+      toast.error("Iltimos, barcha maydonlarni toldiring!");
       return;
     }
 
@@ -75,7 +75,7 @@ export default function CheckoutForm() {
 
     if (deleteError) {
       console.error("Error deleting cart items:", deleteError.message);
-      toast.error("Cartt ma'lumotlarini o'chirishda xatolik yuz berdi!");
+      toast.error("Cartt malumotlarini ochirishda xatolik yuz berdi!");
     } else {
       toast.success("Buyurtma muvaffaqiyatli saqlandi va savat tozalandi!");
 

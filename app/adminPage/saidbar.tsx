@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React, { Children } from "react";
+import Image from "next/image";
+import React, { FC, ReactElement } from "react";
 import { AiOutlineProduct } from "react-icons/ai";
 import { BiCategoryAlt } from "react-icons/bi";
 import { FaUsers } from "react-icons/fa";
@@ -11,10 +12,16 @@ import {
   MdProductionQuantityLimits,
 } from "react-icons/md";
 
-export default function Sidebar() {
+interface MenuItem {
+  href: string;
+  label: string;
+  icon: ReactElement;
+}
+
+const Sidebar: FC = () => {
   const pathname = usePathname();
 
-  const menuItems = [
+  const menuItems: MenuItem[] = [
     {
       href: "/adminPage/dashboard",
       label: "Dashboard",
@@ -44,9 +51,11 @@ export default function Sidebar() {
 
   return (
     <div className="h-full w-96 border bg-neutral-100">
-      <img
+      <Image
         src="/logo (2).webp"
-        className="w-56 h-56 rounded-full shadow-2xl mx-auto mt-3 mb-4"
+        width={224}
+        height={224}
+        className="rounded-full shadow-2xl mx-auto mt-3 mb-4"
         alt="Logo"
       />
       <div className="flex flex-col items-start justify-start">
@@ -56,20 +65,22 @@ export default function Sidebar() {
             <Link
               key={href}
               href={href}
-              className={`flex ms-9 items-center gap-3 cursor-pointer mb-3 p-3 h-12 text-1xl font-semibold transition duration-300 ease-in-out rounded-lg
+              className={`flex ms-9 items-center gap-3 cursor-pointer mb-3 p-3 h-12 text-xl font-semibold transition duration-300 ease-in-out rounded-lg
                 ${
                   isActive
-                    ? "border-2 border-green-600 bg-green-600 text-white text-decoration-none text-4xl"
-                    : "text-[#46A358] hover:bg-green-600 hover:text-white text-decoration-none text-4xl"
+                    ? "border-2 border-green-600 bg-green-600 text-white"
+                    : "text-[#46A358] hover:bg-green-600 hover:text-white"
                 }
               `}
             >
               {icon}
-              <h1 className="text-4xl text-decoration-none">{label}</h1>
+              <h1 className="text-xl">{label}</h1>
             </Link>
           );
         })}
       </div>
     </div>
   );
-}
+};
+
+export default Sidebar;

@@ -37,7 +37,7 @@ export default function Register() {
 
       if (fetchError && fetchError.code !== "PGRST116") {
         alert(
-          "Foydalanuvchi ma'lumotlarini tekshirishda xatolik: " +
+          "Foydalanuvchi malumotlarini tekshirishda xatolik: " +
             fetchError.message
         );
         setLoading(false);

@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { GiShoppingCart } from "react-icons/gi";
 import { createClient } from "@/supabase/client";
+import Image from "next/image";
 
 export default function Navbar() {
   const [username, setUsername] = useState<string | null>(null);
@@ -42,7 +43,7 @@ export default function Navbar() {
       .eq("user_id", userId);
 
     if (error) {
-      console.error("Savatcha ma'lumotlarini olishda xatolik:", error);
+      console.error("Savatcha malumotlarini olishda xatolik:", error);
       return;
     }
 
@@ -52,11 +53,13 @@ export default function Navbar() {
   return (
     <div className="w-full h-[85px] flex justify-center items-center pt-3 mb-[29px] shadow-md p-3 mt-3 rounded-xl">
       <div className="w-full h-full flex justify-between items-center">
-        <img
+        <Image
           onClick={() => router.push("/")}
           className="w-18 h-full rounded-full shadow-sm cursor-pointer"
           src="/logo (2).webp"
           alt="Logo"
+          width={72}
+          height={72}
         />
 
         <div className="flex justify-around items-center gap-5 relative">
@@ -72,12 +75,18 @@ export default function Navbar() {
             )}
           </div>
           {username ? (
-            <div className=" items-center gap-3">
+            <div className="items-center gap-3">
               <div
                 onClick={() => router.push("/cabinet")}
-                className="w-[50px] h-[50px]  bg-red-500 text-white rounded-full cursor-pointer"
+                className="w-[50px] h-[50px] bg-red-500 text-white rounded-full cursor-pointer"
               >
-                <img src="/avatar.jpg" alt="" />
+                <Image
+                  src="/avatar.jpg"
+                  alt="Avatar"
+                  width={50}
+                  height={50}
+                  className="rounded-full"
+                />
               </div>
               {username}
             </div>

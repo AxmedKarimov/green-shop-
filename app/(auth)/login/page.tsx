@@ -85,7 +85,7 @@ export default function Login() {
             {loading ? "Processing..." : "Login"}
           </button>
           <h1 className="text-center text-xl">
-            Don't have an account?{" "}
+            Dont have an account?{" "}
             <a href="/register" className="text-blue-500">
               Register
             </a>

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import Navbar from "../_homePages/Navbar";
 import { createClient } from "@/supabase/client";
 import { useRouter } from "next/navigation";
+import Image from "next/image"; 
 
 const supabase = createClient();
 
@@ -29,14 +30,13 @@ export default function Cabinet() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true); // State to manage loading status
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUserAndOrders = async () => {
       const userId = localStorage.getItem("user_id");
       if (!userId) return;
 
-      // Fetch user data
       const { data: userData, error: userError } = await supabase
         .from("users")
         .select("id, name, email")
@@ -46,7 +46,6 @@ export default function Cabinet() {
       if (userError) console.error("User fetch error:", userError);
       else setUser(userData as User);
 
-      // Fetch orders data
       const { data: ordersData, error: ordersError } = await supabase
         .from("orders")
         .select(
@@ -57,7 +56,7 @@ export default function Cabinet() {
       if (ordersError) console.error("Orders fetch error:", ordersError);
       else setOrders(ordersData as Order[]);
 
-      setLoading(false); // Set loading to false after both fetches complete
+      setLoading(false);
     };
 
     fetchUserAndOrders();
@@ -87,9 +86,11 @@ export default function Cabinet() {
           user && (
             <div className="p-5 border rounded-lg shadow-md bg-white mt-5 w-1/3 mx-auto">
               <h2 className="text-xl font-bold">Foydalanuvchi Ma’lumotlari</h2>
-              <img
+              <Image
                 src="/avatar.jpg"
-                className="w-[105px] h-[105px] mx-auto"
+                width={105}
+                height={105}
+                className="rounded-full mx-auto"
                 alt="User Avatar"
               />
               <p>
