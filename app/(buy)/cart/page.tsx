@@ -1,6 +1,6 @@
 "use client";
 import { createClient } from "@/supabase/client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import Navbar from "../../_homePages/Navbar";
 import { useRouter } from "next/navigation";
 import { FaTrash } from "react-icons/fa";
@@ -28,87 +28,96 @@ interface CartItem {
 
 export default function Page() {
   const router = useRouter();
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []); // Supabase faqat bir marta yaratiladi
   const [userId, setUserId] = useState<string | null>(null);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    const ticketData = localStorage.getItem("user_id");
-    if (ticketData) {
-      try {
-        const parsedUserId = JSON.parse(ticketData);
-        setUserId(typeof parsedUserId === "string" ? parsedUserId : null);
-      } catch (error) {
-        setUserId(ticketData);
-      }
-    }
+    setIsClient(true);
   }, []);
 
   useEffect(() => {
-    const fetchCartItems = async () => {
-      if (!userId) return;
-      setLoading(true);
-
-      const { data: cartData, error: cartError } = await supabase
-        .from("cartt")
-        .select("*")
-        .eq("user_id", userId);
-
-      if (cartError) {
-        toast.error("Error fetching cart items");
-        setLoading(false);
-        return;
+    if (isClient) {
+      const ticketData = localStorage.getItem("user_id");
+      if (ticketData) {
+        try {
+          const parsedUserId = JSON.parse(ticketData);
+          setUserId(typeof parsedUserId === "string" ? parsedUserId : null);
+        } catch (error) {
+          setUserId(ticketData);
+        }
       }
+    }
+  }, [isClient]);
 
-      if (!cartData || cartData.length === 0) {
-        setCartItems([]);
-        setLoading(false);
-        return;
-      }
+  const fetchCartItems = useCallback(async () => {
+    if (!userId) return;
+    setLoading(true);
 
-      const productIds = cartData.map((item) => item.product_id);
-      const { data: productsData, error: productsError } = await supabase
-        .from("products")
-        .select("*")
-        .in("id", productIds);
+    const { data: cartData, error: cartError } = await supabase
+      .from("cartt")
+      .select("*")
+      .eq("user_id", userId);
 
-      if (productsError) {
-        toast.error("Error fetching products");
-        setLoading(false);
-        return;
-      }
-
-      const enrichedCartItems = cartData.map((cartItem) => ({
-        ...cartItem,
-        product: productsData.find((p) => p.id === cartItem.product_id) || null,
-      }));
-
-      setCartItems(enrichedCartItems);
+    if (cartError) {
+      toast.error("Error fetching cart items");
       setLoading(false);
-    };
-
-    fetchCartItems();
-  }, [userId]);
-
-  const removeCartItem = async (id: number) => {
-    const { error } = await supabase.from("cartt").delete().eq("id", id);
-    if (error) {
-      toast.error("Error deleting item");
       return;
     }
-    setCartItems(cartItems.filter((item) => item.id !== id));
-    toast.success("Item removed from cart");
-  };
 
-  const handleGOchek = () => {
-    // Store the total price in local storage
+    if (!cartData || cartData.length === 0) {
+      setCartItems([]);
+      setLoading(false);
+      return;
+    }
+
+    const productIds = cartData.map((item) => item.product_id);
+    const { data: productsData, error: productsError } = await supabase
+      .from("products")
+      .select("*")
+      .in("id", productIds);
+
+    if (productsError) {
+      toast.error("Error fetching products");
+      setLoading(false);
+      return;
+    }
+
+    const enrichedCartItems = cartData.map((cartItem) => ({
+      ...cartItem,
+      product: productsData.find((p) => p.id === cartItem.product_id) || null,
+    }));
+
+    setCartItems(enrichedCartItems);
+    setLoading(false);
+  }, [userId, supabase]);
+
+  useEffect(() => {
+    fetchCartItems();
+  }, [fetchCartItems]);
+
+  const removeCartItem = useCallback(
+    async (id: number) => {
+      const { error } = await supabase.from("cartt").delete().eq("id", id);
+      if (error) {
+        toast.error("Error deleting item");
+        return;
+      }
+      setCartItems((prev) => prev.filter((item) => item.id !== id));
+      toast.success("Item removed from cart");
+    },
+    [supabase]
+  );
+
+  const handleGOchek = useCallback(() => {
     const totalPrice = cartItems
       .reduce((acc, item) => acc + parseFloat(item.totalPrice), 0)
       .toFixed(2);
     localStorage.setItem("totalPrice", totalPrice);
     router.push("/checkout");
-  };
+  }, [cartItems, router]);
 
   return (
     <div className="w-full px-4 md:px-0">

@@ -100,7 +100,7 @@ export default function Products() {
   useEffect(() => {
     fetchProducts();
     fetchCategories();
-  }, []);
+  }, [fetchProducts(), fetchCategories()]);
 
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -207,11 +207,11 @@ export default function Products() {
       let newValue: string | number | boolean;
 
       if (type === "checkbox") {
-        newValue = (e.target as HTMLInputElement).checked; // Type assertion for checkbox
+        newValue = (e.target as HTMLInputElement).checked;
       } else if (type === "number") {
-        newValue = Number((e.target as HTMLInputElement).value); // Type assertion for number
+        newValue = Number((e.target as HTMLInputElement).value);
       } else {
-        newValue = (e.target as HTMLInputElement).value; // Default to string for text/textarea/select
+        newValue = (e.target as HTMLInputElement).value;
       }
 
       setEditingProduct((prev) => ({
@@ -222,7 +222,7 @@ export default function Products() {
   };
 
   const handleNewImagesChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const target = e.target as HTMLInputElement; // Type assertion
+    const target = e.target as HTMLInputElement;
     if (target.files) {
       setNewProductImages((prev) => [...prev, ...Array.from(target.files!)]);
     }
@@ -233,7 +233,7 @@ export default function Products() {
   };
 
   const handleEditImagesChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const target = e.target as HTMLInputElement; // Type assertion
+    const target = e.target as HTMLInputElement;
     if (target.files) {
       setEditingNewImages((prev) => [...prev, ...Array.from(target.files!)]);
     }

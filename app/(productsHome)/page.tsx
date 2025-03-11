@@ -2,7 +2,7 @@
 import { createClient } from "@/supabase/client";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import Image from "next/image";
+import Image from "next/image"; 
 
 const supabase = createClient();
 
@@ -144,8 +144,8 @@ export default function ProductsPage() {
                       src={product.images[0]}
                       alt={product.name}
                       className="w-full h-40 object-cover rounded-md mb-3"
-                      width={400}
-                      height={250}
+                      width={400} 
+                      height={250} 
                     />
                   )}
                   <h3 className="text-lg font-semibold">{product.name}</h3>

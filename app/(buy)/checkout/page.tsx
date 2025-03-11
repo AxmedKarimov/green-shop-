@@ -46,7 +46,7 @@ export default function CheckoutForm() {
 
     setLoading(true);
 
-    const { data, error } = await supabase.from("orders").insert([
+    const { error } = await supabase.from("orders").insert([
       {
         userId,
         totalPrice: parseFloat(totalPrice),

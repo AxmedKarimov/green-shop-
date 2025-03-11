@@ -8,7 +8,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import Image from "next/image"; // Next.js Image komponenti
+import Image from "next/image";
 
 interface Product {
   id: string;
@@ -25,7 +25,6 @@ const supabase = createClient();
 export default function ProductDetail() {
   const params = useParams();
   const id = params?.id as string;
-  const router = useRouter();
   const [product, setProduct] = useState<Product | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [count, setCount] = useState<number>(1);

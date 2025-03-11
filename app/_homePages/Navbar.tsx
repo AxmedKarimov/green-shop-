@@ -8,16 +8,23 @@ import Image from "next/image";
 export default function Navbar() {
   const [username, setUsername] = useState<string | null>(null);
   const [cartCount, setCartCount] = useState<number>(0);
+  const [isClient, setIsClient] = useState(false);
   const router = useRouter();
   const supabase = createClient();
 
   useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient) return;
+
     const userToken = localStorage.getItem("user_token");
     if (userToken) {
       fetchUserName(userToken);
     }
     fetchCartCount();
-  }, []);
+  }, [isClient]);
 
   const fetchUserName = async (userToken: string) => {
     const { data, error } = await supabase
