@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { GiShoppingCart } from "react-icons/gi";
 import { createClient } from "@/supabase/client";
 import Image from "next/image";
@@ -16,31 +16,24 @@ export default function Navbar() {
     setIsClient(true);
   }, []);
 
-  useEffect(() => {
-    if (!isClient) return;
+  const fetchUserName = useCallback(
+    async (userToken: string) => {
+      const { data, error } = await supabase
+        .from("users")
+        .select("name")
+        .eq("token", userToken)
+        .single();
 
-    const userToken = localStorage.getItem("user_token");
-    if (userToken) {
-      fetchUserName(userToken);
-    }
-    fetchCartCount();
-  }, [isClient]);
+      if (error) {
+        console.error("Foydalanuvchi topilmadi:", error);
+      } else {
+        setUsername(data.name);
+      }
+    },
+    [supabase]
+  );
 
-  const fetchUserName = async (userToken: string) => {
-    const { data, error } = await supabase
-      .from("users")
-      .select("name")
-      .eq("token", userToken)
-      .single();
-
-    if (error) {
-      console.error("Foydalanuvchi topilmadi:", error);
-    } else {
-      setUsername(data.name);
-    }
-  };
-
-  const fetchCartCount = async () => {
+  const fetchCartCount = useCallback(async () => {
     const userId = localStorage.getItem("user_id");
     if (!userId) return;
 
@@ -55,7 +48,17 @@ export default function Navbar() {
     }
 
     setCartCount(data.length);
-  };
+  }, [supabase]);
+
+  useEffect(() => {
+    if (!isClient) return;
+
+    const userToken = localStorage.getItem("user_token");
+    if (userToken) {
+      fetchUserName(userToken);
+    }
+    fetchCartCount();
+  }, [isClient, fetchUserName, fetchCartCount]);
 
   return (
     <div className="w-full h-[85px] flex justify-center items-center pt-3 mb-[29px] shadow-md p-3 mt-3 rounded-xl">

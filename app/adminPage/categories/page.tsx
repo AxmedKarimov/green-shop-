@@ -1,13 +1,11 @@
 "use client";
-import Link from "next/link";
-import React, { useEffect, useState, ChangeEvent, FormEvent } from "react";
-import { AiOutlineProduct } from "react-icons/ai";
-import { BiCategoryAlt } from "react-icons/bi";
-import { FaUsers } from "react-icons/fa";
-import {
-  MdOutlineSpaceDashboard,
-  MdProductionQuantityLimits,
-} from "react-icons/md";
+import React, {
+  useEffect,
+  useState,
+  ChangeEvent,
+  FormEvent,
+  useCallback,
+} from "react";
 import Sidebar from "../saidbar";
 import { createClient } from "@/supabase/client";
 
@@ -25,18 +23,20 @@ export default function Category() {
   const [newCategoryActive, setNewCategoryActive] = useState<boolean>(true);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const supabase = createClient();
-  const fetchCategories = async () => {
+
+  // Use useCallback to memoize fetchCategories function
+  const fetchCategories = useCallback(async () => {
     const { data, error } = await supabase.from("categories").select("*");
     if (error) {
       console.error("Error fetching categories:", error);
     } else {
       setCategories(data as Category[]);
     }
-  };
+  }, [supabase]); // Add supabase as a dependency
 
   useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [fetchCategories]); // Pass fetchCategories as a dependency
 
   const handleAddCategory = async (e: FormEvent) => {
     e.preventDefault();

@@ -2,7 +2,7 @@
 import Footer from "@/app/_homePages/Footer";
 import Navbar from "@/app/_homePages/Navbar";
 import { createClient } from "@/supabase/client";
-import { useRouter, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";

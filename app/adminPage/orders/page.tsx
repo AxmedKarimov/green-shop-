@@ -20,15 +20,26 @@ export default function Admin() {
   const supabase = createClient();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchOrders = async () => {
-      const { data, error } = await supabase.from("orders").select("*");
-      if (!error && data) {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const { data, error } = await supabase.from("orders").select("*");
+        if (error) {
+          throw new Error(error.message);
+        }
         setOrders(data as Order[]);
+      } catch (err: any) {
+        setError("Error fetching orders: " + err.message);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
+
     fetchOrders();
   }, []);
 
@@ -36,12 +47,16 @@ export default function Admin() {
     id: number,
     newStatus: "OPEN" | "INPROGRESS" | "CLOSE"
   ) => {
-    await supabase.from("orders").update({ status: newStatus }).eq("id", id);
-    setOrders((prevOrders) =>
-      prevOrders.map((order) =>
-        order.id === id ? { ...order, status: newStatus } : order
-      )
-    );
+    try {
+      await supabase.from("orders").update({ status: newStatus }).eq("id", id);
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order.id === id ? { ...order, status: newStatus } : order
+        )
+      );
+    } catch (error) {
+      console.error("Error updating order status:", error);
+    }
   };
 
   const handleDragStart = (event: React.DragEvent, id: number) => {
@@ -68,6 +83,8 @@ export default function Admin() {
             <p className="text-center text-xl text-gray-600">
               Loading orders...
             </p>
+          ) : error ? (
+            <p className="text-center text-xl text-red-500">{error}</p>
           ) : (
             <div className="flex justify-center items-start gap-10">
               {["OPEN", "INPROGRESS", "CLOSE"].map((status) => (

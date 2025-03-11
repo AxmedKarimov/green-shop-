@@ -1,5 +1,11 @@
 "use client";
-import React, { useEffect, useState, ChangeEvent, FormEvent } from "react";
+import React, {
+  useEffect,
+  useState,
+  ChangeEvent,
+  FormEvent,
+  useCallback,
+} from "react";
 
 import { MdAddPhotoAlternate } from "react-icons/md";
 import Sidebar from "../saidbar";
@@ -66,11 +72,12 @@ export default function Products() {
 
   const [editingNewImages, setEditingNewImages] = useState<File[]>([]);
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from("products")
         .select("*, categories (name)");
+
       if (error) {
         console.error("Mahsulotlarni olishda xatolik:", error);
       } else if (data) {
@@ -79,11 +86,11 @@ export default function Products() {
     } catch (err) {
       console.error("fetchProducts error:", err);
     }
-  };
-
-  const fetchCategories = async () => {
+  }, [supabase]);
+  const fetchCategories = useCallback(async () => {
     try {
       const { data, error } = await supabase.from("categories").select("*");
+
       if (error) {
         console.error("Kategoriyalarni olishda xatolik:", error);
       } else if (data) {
@@ -95,13 +102,11 @@ export default function Products() {
     } catch (err) {
       console.error("fetchCategories error:", err);
     }
-  };
-
+  }, [supabase]);
   useEffect(() => {
     fetchProducts();
     fetchCategories();
-  }, [supabase]);
-
+  }, [fetchProducts, fetchCategories]);
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
