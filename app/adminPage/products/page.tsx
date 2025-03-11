@@ -100,7 +100,7 @@ export default function Products() {
   useEffect(() => {
     fetchProducts();
     fetchCategories();
-  }, [fetchProducts(), fetchCategories()]);
+  }, [supabase]);
 
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())

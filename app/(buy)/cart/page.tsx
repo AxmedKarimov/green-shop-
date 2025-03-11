@@ -28,7 +28,7 @@ interface CartItem {
 
 export default function Page() {
   const router = useRouter();
-  const supabase = useMemo(() => createClient(), []); // Supabase faqat bir marta yaratiladi
+  const supabase = useMemo(() => createClient(), []);
   const [userId, setUserId] = useState<string | null>(null);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,7 +36,7 @@ export default function Page() {
 
   useEffect(() => {
     setIsClient(true);
-  }, []);
+  }, [supabase]);
 
   useEffect(() => {
     if (isClient) {
